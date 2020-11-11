@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.google.ads.interactivemedia.v3.samples.videoplayerapp"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -30,6 +30,12 @@ repositories {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    // NOTE: ptv-sdk is imported as a *.aar module via "File > New > New Module"
+    implementation project(":ptvsdk-debug")
+    // We need to include kotlin stdlib for ptv-sdk-android to work in Java app.
+    //https://stackoverflow.com/questions/43943474/android-library-module-developed-in-kotlin-exported-to-java-application-causing
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.41'
     implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.browser:browser:1.2.0'

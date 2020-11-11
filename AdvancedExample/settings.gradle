@@ -1,1 +1,2 @@
+include ':ptvsdk-debug'
 include ':app'

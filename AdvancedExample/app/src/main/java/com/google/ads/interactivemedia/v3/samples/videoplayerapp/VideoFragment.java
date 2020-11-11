@@ -42,6 +42,17 @@ public class VideoFragment extends Fragment {
     return rootView;
   }
 
+  /*
+  Wait until View is added to layout before initializing OverlayManager
+   */
+  @Override
+  public void onStart() {
+    super.onStart();
+    if(videoPlayerController != null) {
+      videoPlayerController.initOverlayManager();
+    }
+  }
+
   public void loadVideo(VideoItem videoItem) {
     this.videoItem = videoItem;
     if (videoPlayerController == null) {

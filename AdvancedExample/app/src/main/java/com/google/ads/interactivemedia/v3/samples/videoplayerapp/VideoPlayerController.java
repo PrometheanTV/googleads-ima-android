@@ -2,6 +2,7 @@
 
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,6 +18,10 @@ import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.CompanionAdSlot;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
+import tv.promethean.ptvsdk.OverlayManager;
+import tv.promethean.ptvsdk.interfaces.PlayerChangeListener;
+import tv.promethean.ptvsdk.models.OverlayData;
+import tv.promethean.ptvsdk.models.Location;
 
 /** Ads logic for handling the IMA SDK integration code and events. */
 public class VideoPlayerController {
@@ -67,6 +72,10 @@ public class VideoPlayerController {
 
   private boolean videoStarted;
 
+  private OverlayManager overlayManager;
+
+  private Activity currentActivity;
+
   // Inner class implementation of AdsLoader.AdsLoaderListener.
   private class AdsLoadedListener implements AdsLoader.AdsLoadedListener {
     /** An event raised when ads are successfully loaded from the ad server via AdsLoader. */
@@ -109,11 +118,17 @@ public class VideoPlayerController {
                   // AdEventType.CONTENT_PAUSE_REQUESTED is fired immediately before
                   // a video ad is played.
                   pauseContent();
+                  if (overlayManager != null) {
+                    overlayManager.hideOverlays();
+                  }
                   break;
                 case CONTENT_RESUME_REQUESTED:
                   // AdEventType.CONTENT_RESUME_REQUESTED is fired when the ad is
                   // completed and you should start playing your content.
                   resumeContent();
+                  if (overlayManager != null) {
+                    overlayManager.showOverlays();
+                  }
                   break;
                 case PAUSED:
                   isAdPlaying = false;
@@ -151,6 +166,7 @@ public class VideoPlayerController {
       String language,
       ViewGroup companionViewGroup,
       Logger log) {
+    this.currentActivity = (Activity) context;
     this.videoPlayerWithAdPlayback = videoPlayerWithAdPlayback;
     this.playButton = playButton;
     this.playPauseToggle = playPauseToggle;
@@ -189,6 +205,37 @@ public class VideoPlayerController {
             requestAndPlayAds(-1);
           }
         });
+  }
+
+  public void initOverlayManager() {
+    if (this.overlayManager != null) {
+      return;
+    }
+
+    // Create the overlay data object. Note that `streamType` is LIVE.
+    OverlayData overlayData = new OverlayData(
+            OverlayData.ApiHost.COMDEV,
+            "5cb6119567bff26435ec07a9",
+            false,
+            OverlayData.DeviceType.PHONE,
+            false,OverlayData.Environment.COMDEV,null,
+            false,
+            "5d55ba32b4ce5d66fd179340",
+            "test-dev-id",
+            new Location(10.0909,-10.39940)
+    );
+    this.overlayManager = new OverlayManager(this.currentActivity, R.id.ptv_overlay_view, overlayData);
+    this.overlayManager.addPlayerListener(new PlayerChangeListener() {
+      @Override
+      public Long getCurrentPosition() {
+        if(videoPlayerWithAdPlayback != null) {
+          int currentTime = videoPlayerWithAdPlayback.getCurrentContentTime();
+          System.out.println("currentTime: "+currentTime);
+          return new Long(currentTime);
+        }
+        return 0L;
+      }
+    });
   }
 
   private void log(String message) {

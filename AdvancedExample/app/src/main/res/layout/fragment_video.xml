@@ -52,6 +52,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_centerHorizontal="true"/>
+                <tv.promethean.ptvsdk.ui.OverlayView
+                    android:id="@+id/ptv_overlay_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
                 <FrameLayout
                     android:id="@+id/adUiContainer"
                     android:layout_width="match_parent"
